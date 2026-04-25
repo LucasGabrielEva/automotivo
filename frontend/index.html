@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AutoSystem — Gestão Automotiva</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="style.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+<div class="app">
+<div class="sovl" id="sovl" onclick="closeSidebar()"></div>
+
+<aside class="sidebar" id="sidebar">
+  <div class="slogo">
+    <div class="slogo-ic"><svg viewBox="0 0 24 24"><path d="M12 2L3 7v10l9 5 9-5V7z"/><path d="M12 7v10M7.5 9.5l9 5"/></svg></div>
+    <div><div class="slogo-t">AutoSystem</div><div class="slogo-s">Gestão Automotiva</div></div>
+  </div>
+  <nav class="nav">
+    <div class="nsec">Principal</div>
+    <div class="ni active" onclick="showPage('dashboard',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard
+    </div>
+    <div class="nsec">Cadastros</div>
+    <div class="ni" onclick="showPage('usuarios',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>Usuários
+    </div>
+    <div class="ni" onclick="showPage('clientes',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>Clientes
+    </div>
+    <div class="ni" onclick="showPage('oficinas',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Oficinas
+    </div>
+    <div class="nsec">Operações</div>
+    <div class="ni" onclick="showPage('ordens',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Ordens de Serviço
+    </div>
+    <div class="ni" onclick="showPage('agendamentos',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Agendamentos
+    </div>
+    <div class="ni" onclick="showPage('chat',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Chat
+    </div>
+    <div class="ni" onclick="showPage('relatorio',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Relatório
+    </div>
+  </nav>
+  <div class="sess-bar">
+    <div class="sess-label">Sessão ativa</div>
+    <div class="sess-row">
+      <div class="av av-t" id="sess-av" style="width:28px;height:28px;font-size:10px">?</div>
+      <div><div style="font-size:13px;font-weight:500" id="sess-name">Nenhum</div><div style="font-size:11px;color:var(--tx2)" id="sess-role">Selecione abaixo</div></div>
+    </div>
+    <select class="finput" id="sess-sel" onchange="trocarSessao()" style="font-size:12px">
+      <option value="">Escolher usuário...</option>
+    </select>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <button class="menu-btn" onclick="toggleSidebar()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <span class="tb-title" id="tb-title">Dashboard</span>
+    <div class="tb-sp"></div>
+    <span id="sess-badge" style="font-size:12px;padding:4px 10px;border-radius:6px;background:var(--bg);border:0.5px solid var(--bdr);color:var(--tx2)">Sem sessão</span>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="ph"><div><div class="ptitle">Visão geral</div><div class="pdesc">Resumo do sistema em tempo real</div></div>
+        <button class="btn btn-sm" onclick="carregarDashboard()">↺ Atualizar</button>
+      </div>
+      <div class="sg">
+        <div class="sc"><div class="sc-l">Usuários</div><div class="sc-v" id="d-usu">—</div><div class="sc-s">cadastrados</div></div>
+        <div class="sc"><div class="sc-l">Clientes</div><div class="sc-v" id="d-cli">—</div><div class="sc-s">registrados</div></div>
+        <div class="sc"><div class="sc-l">Oficinas</div><div class="sc-v" id="d-ofi">—</div><div class="sc-s">parceiras</div></div>
+        <div class="sc"><div class="sc-l">OS em aberto</div><div class="sc-v" id="d-os">—</div><div class="sc-s">não fechadas</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem">
+        <div class="card">
+          <div class="ch"><span class="ct">Últimas ordens</span><button class="btn btn-sm" onclick="showPage('ordens',null)">Ver todas</button></div>
+          <div class="tw"><table><thead><tr><th>#</th><th>Veículo</th><th>Status</th></tr></thead>
+          <tbody id="d-os-tb"><tr><td colspan="3" class="loading"><div class="spin"></div></td></tr></tbody></table></div>
+        </div>
+        <div class="card">
+          <div class="ch"><span class="ct">Status das OS</span></div>
+          <div class="bar-wrap" id="d-bar" style="padding:.5rem 0"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- USUÁRIOS -->
+    <div class="page" id="page-usuarios">
+      <div class="ph">
+        <div><div class="ptitle">Usuários</div><div class="pdesc">Controle de acesso por nível</div></div>
+        <button class="btn btn-p" onclick="openModal('m-u')">+ Novo usuário</button>
+      </div>
+      <div class="card" style="background:var(--acc-l);border-color:rgba(29,158,117,.2);padding:1rem">
+        <div style="font-size:13px;font-weight:500;color:var(--acc-d);margin-bottom:.6rem">Permissões por nível de acesso</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;font-size:12px">
+          <div style="background:var(--sur);border-radius:8px;padding:.65rem"><b>👤 CLIENTE</b><div style="color:var(--tx2);margin-top:3px">Acompanha OS e chat · Não altera status</div></div>
+          <div style="background:var(--sur);border-radius:8px;padding:.65rem"><b>🟡 N1 — Atendimento</b><div style="color:var(--tx2);margin-top:3px">Abre OS · Move para Em andamento / Ag. peça · Não fecha</div></div>
+          <div style="background:var(--sur);border-radius:8px;padding:.65rem"><b>🔵 N2 — Técnico</b><div style="color:var(--tx2);margin-top:3px">Tudo do N1 · Pode fechar OS · Não reabre fechada</div></div>
+          <div style="background:var(--sur);border-radius:8px;padding:.65rem"><b>🟣 N3 — Especialista</b><div style="color:var(--tx2);margin-top:3px">Acesso total · Qualquer transição de status</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="tw"><table><thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Cadastro</th><th></th></tr></thead>
+        <tbody id="tb-usu"><tr><td colspan="5" class="loading"><div class="spin"></div></td></tr></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- CLIENTES -->
+    <div class="page" id="page-clientes">
+      <div class="ph">
+        <div><div class="ptitle">Clientes</div><div class="pdesc">Pessoas físicas e jurídicas</div></div>
+        <button class="btn btn-p" onclick="openModal('m-c')">+ Novo cliente</button>
+      </div>
+      <div class="card">
+        <div class="tw"><table><thead><tr><th>Razão Social</th><th>Documento</th><th>Telefone</th><th>Usuário vinculado</th><th></th></tr></thead>
+        <tbody id="tb-cli"><tr><td colspan="5" class="loading"><div class="spin"></div></td></tr></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- OFICINAS -->
+    <div class="page" id="page-oficinas">
+      <div class="ph">
+        <div><div class="ptitle">Oficinas parceiras</div><div class="pdesc">Rede de oficinas conveniadas</div></div>
+        <button class="btn btn-p" onclick="openModal('m-o')">+ Nova oficina</button>
+      </div>
+      <div id="ofi-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px">
+        <div class="loading"><div class="spin"></div></div>
+      </div>
+    </div>
+
+    <!-- ORDENS -->
+    <div class="page" id="page-ordens">
+      <div class="ph">
+        <div><div class="ptitle">Ordens de serviço</div><div class="pdesc">Gestão completa com controle por nível de acesso</div></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <select class="finput" id="filter-st" style="width:auto;font-size:13px" onchange="carregarOrdens()">
+            <option value="">Todos os status</option>
+            <option value="ABERTA">Aberta</option>
+            <option value="EM_ANDAMENTO">Em andamento</option>
+            <option value="AGUARDANDO_PECA">Aguardando peça</option>
+            <option value="FECHADA">Fechada</option>
+          </select>
+          <button class="btn btn-p" onclick="openModal('m-os')">+ Nova OS</button>
+        </div>
+      </div>
+      <div class="card" style="padding:.85rem 1.25rem;margin-bottom:.75rem">
+        <div style="font-size:11px;font-weight:500;color:var(--tx2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem">Fluxo de transições</div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px">
+          <span style="padding:3px 10px;border-radius:6px;background:var(--amber-l);color:var(--amber);font-weight:500">Aberta</span><span style="color:var(--tx3)">→</span>
+          <span style="padding:3px 10px;border-radius:6px;background:var(--blue-l);color:var(--blue);font-weight:500">Em andamento</span><span style="color:var(--tx3)">→</span>
+          <span style="padding:3px 10px;border-radius:6px;background:var(--coral-l);color:var(--coral);font-weight:500">Ag. peça</span><span style="color:var(--tx3)">→</span>
+          <span style="padding:3px 10px;border-radius:6px;background:var(--acc-l);color:var(--acc-d);font-weight:500">Fechada</span>
+          <span style="color:var(--tx3);font-size:11px;margin-left:6px">· N1: até Ag. peça · N2: fecha · N3: acesso total</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="tw"><table><thead><tr><th>OS</th><th>Cliente</th><th>Veículo</th><th>Problema</th><th>Responsável</th><th>Status</th><th>Criado em</th><th></th></tr></thead>
+        <tbody id="tb-os"><tr><td colspan="8" class="loading"><div class="spin"></div></td></tr></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- CHAT -->
+    <div class="page" id="page-chat">
+      <div class="ph"><div><div class="ptitle">Chat por OS</div><div class="pdesc">Comunicação entre cliente e equipe por ordem de serviço</div></div></div>
+      <div class="info-box info-acc">
+        💡 Ao abrir uma OS com responsável, a descrição do problema é enviada automaticamente como primeira mensagem. Atualizações de status também aparecem como mensagens do sistema. O cliente vê tudo em tempo real.
+      </div>
+      <div class="chat-wrap">
+        <div class="chat-list">
+          <div class="chat-list-hdr">Todas as OS</div>
+          <div id="chat-os-list"><div class="loading"><div class="spin"></div></div></div>
+        </div>
+        <div class="chat-main">
+          <div class="chat-hdr">
+            <div class="chat-hdr-t" id="chat-title">Selecione uma OS</div>
+            <div class="chat-hdr-s" id="chat-sub">Clique em uma ordem para abrir o chat</div>
+          </div>
+          <div class="chat-msgs" id="chat-msgs"><div class="empty">Selecione uma OS à esquerda</div></div>
+          <div class="chat-input-row">
+            <input class="cinput" id="cinput" placeholder="Mensagem... (Enter para enviar)" onkeydown="if(event.key==='Enter')enviarMsg()"/>
+            <button class="csend" onclick="enviarMsg()"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AGENDAMENTOS -->
+    <div class="page" id="page-agendamentos">
+      <div class="ph">
+        <div><div class="ptitle">Agendamentos</div><div class="pdesc">Criação, reagendamento e cancelamento de serviços</div></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <select class="finput" id="ag-filter" style="width:auto;font-size:13px" onchange="carregarAgendamentos()">
+            <option value="">Todos os status</option>
+            <option value="PENDENTE">Pendente</option>
+            <option value="CONFIRMADO">Confirmado</option>
+            <option value="REAGENDADO">Reagendado</option>
+            <option value="CANCELADO">Cancelado</option>
+          </select>
+          <button class="btn btn-p" onclick="popularOficinas();openModal('m-ag')">+ Novo agendamento</button>
+        </div>
+      </div>
+      <div class="card" style="padding:.85rem 1.25rem;margin-bottom:.75rem">
+        <div style="font-size:11px;font-weight:500;color:var(--tx2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem">Status</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;font-size:12px;align-items:center">
+          <span class="badge b-warn">Pendente</span><span style="color:var(--tx3)">-></span>
+          <span class="badge b-ok">Confirmado</span>
+          <span style="color:var(--tx3)">|</span>
+          <span class="badge b-info">Reagendado</span>
+          <span style="color:var(--tx3)">|</span>
+          <span class="badge b-err">Cancelado</span>
+          <span style="color:var(--tx3);font-size:11px;margin-left:6px">Use "Acoes" para confirmar, reagendar ou cancelar</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="tw"><table>
+          <thead><tr><th>#</th><th>Cliente</th><th>Oficina</th><th>Data / Hora</th><th>Tipo de servico</th><th>Status</th><th>Cancelado por</th><th></th></tr></thead>
+          <tbody id="tb-ag"><tr><td colspan="8" class="loading"><div class="spin"></div></td></tr></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- RELATÓRIO -->
+    <div class="page" id="page-relatorio">
+      <div class="ph">
+        <div><div class="ptitle">Relatório geral</div><div class="pdesc">Consolidado de toda a operação</div></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn" onclick="carregarRelatorio()">↺ Atualizar</button>
+          <button class="btn btn-p" onclick="exportarPDF()" id="btn-pdf">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+            Exportar PDF
+          </button>
+          <button class="btn btn-danger" onclick="abrirDelAll()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg>
+            Excluir todas as OS
+          </button>
+        </div>
+      </div>
+      <div class="rel-sec">
+        <div class="rel-t">Resumo geral</div>
+        <div class="rel-grid">
+          <div class="rc"><div class="rc-l">Total de OS</div><div class="rc-v" id="r-total">—</div></div>
+          <div class="rc"><div class="rc-l">Abertas</div><div class="rc-v" id="r-ab" style="color:var(--amber)">—</div></div>
+          <div class="rc"><div class="rc-l">Em andamento</div><div class="rc-v" id="r-and" style="color:var(--blue)">—</div></div>
+          <div class="rc"><div class="rc-l">Ag. peça</div><div class="rc-v" id="r-ag" style="color:var(--coral)">—</div></div>
+          <div class="rc"><div class="rc-l">Fechadas</div><div class="rc-v" id="r-fec" style="color:var(--acc)">—</div></div>
+          <div class="rc"><div class="rc-l">Mensagens chat</div><div class="rc-v" id="r-msg">—</div></div>
+          <div class="rc"><div class="rc-l">Usuários</div><div class="rc-v" id="r-usu">—</div></div>
+          <div class="rc"><div class="rc-l">Clientes</div><div class="rc-v" id="r-cli">—</div></div>
+        </div>
+      </div>
+      <div class="rel-sec">
+        <div class="rel-t">Distribuição por status</div>
+        <div class="card" style="padding:1rem 1.25rem"><div class="bar-wrap" id="r-bar"></div></div>
+      </div>
+      <div class="rel-sec">
+        <div class="rel-t">OS por cliente</div>
+        <div class="card" style="padding:0"><div class="tw"><table><thead><tr><th>Cliente</th><th>Documento</th><th>Total</th><th>Em aberto</th><th>Fechadas</th></tr></thead>
+        <tbody id="r-tb-cli"><tr><td colspan="5" class="loading"><div class="spin"></div></td></tr></tbody></table></div></div>
+      </div>
+      <div class="rel-sec">
+        <div class="rel-t">Todas as ordens de serviço</div>
+        <div class="card" style="padding:0"><div class="tw"><table><thead><tr><th>OS</th><th>Cliente</th><th>Veículo</th><th>Responsável</th><th>Status</th><th>Abertura</th><th>Fechamento</th></tr></thead>
+        <tbody id="r-tb-os"><tr><td colspan="7" class="loading"><div class="spin"></div></td></tr></tbody></table></div></div>
+      </div>
+      <div class="rel-sec">
+        <div class="rel-t">Agendamentos</div>
+        <div class="card" style="padding:0"><div class="tw"><table><thead><tr><th>#</th><th>Cliente</th><th>Oficina</th><th>Data / Hora</th><th>Tipo</th><th>Status</th><th>Cancelado por</th></tr></thead>
+        <tbody id="r-tb-ag"><tr><td colspan="7" class="loading"><div class="spin"></div></td></tr></tbody></table></div></div>
+      </div>
+      <div class="rel-sec">
+        <div class="rel-t">Histórico completo de mensagens</div>
+        <div class="card" style="padding:0"><div class="tw"><table><thead><tr><th>OS</th><th>Remetente</th><th>Perfil</th><th>Mensagem</th><th>Enviado em</th></tr></thead>
+        <tbody id="r-tb-msg"><tr><td colspan="5" class="loading"><div class="spin"></div></td></tr></tbody></table></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<div id="toast"></div>
+
+<!-- MODAL USUÁRIO -->
+<div class="moverlay" id="m-u"><div class="modal">
+  <div class="modal-t">Novo usuário</div>
+  <div class="fg">
+    <div class="fgroup" style="grid-column:1/-1"><label class="flabel">Nome completo *</label><input class="finput" id="u-nome" placeholder="Maria Oliveira"/></div>
+    <div class="fgroup"><label class="flabel">E-mail *</label><input class="finput" id="u-email" type="email" placeholder="email@exemplo.com"/></div>
+    <div class="fgroup"><label class="flabel">Senha * <span class="fhint">(mín. 6 chars)</span></label><input class="finput" id="u-senha" type="password" placeholder="••••••"/></div>
+    <div class="fgroup"><label class="flabel">Perfil *</label>
+      <select class="finput" id="u-perfil"><option value="">Selecione...</option><option value="CLIENTE">CLIENTE</option><option value="N1">N1 — Atendimento</option><option value="N2">N2 — Técnico</option><option value="N3">N3 — Especialista</option></select>
+    </div>
+  </div>
+  <div class="mfooter"><button class="btn" onclick="closeModal('m-u')">Cancelar</button><button class="btn btn-p" onclick="salvarUsuario()">Salvar</button></div>
+</div></div>
+
+<!-- MODAL CLIENTE -->
+<div class="moverlay" id="m-c"><div class="modal">
+  <div class="modal-t">Novo cliente</div>
+  <div class="fg">
+    <div class="fgroup" style="grid-column:1/-1"><label class="flabel">Razão social / Nome</label><input class="finput" id="c-razao" placeholder="Auto Peças Silva Ltda"/></div>
+    <div class="fgroup"><label class="flabel">CPF ou CNPJ *</label><input class="finput" id="c-doc" placeholder="000.000.000-00"/></div>
+    <div class="fgroup"><label class="flabel">Telefone</label><input class="finput" id="c-tel" placeholder="(71) 99999-0000"/></div>
+    <div class="fgroup" style="grid-column:1/-1"><label class="flabel">ID do usuário vinculado <span class="fhint">(opcional)</span></label><input class="finput" type="number" id="c-uid" placeholder="Deixe em branco se não houver"/></div>
+  </div>
+  <div class="mfooter"><button class="btn" onclick="closeModal('m-c')">Cancelar</button><button class="btn btn-p" onclick="salvarCliente()">Salvar</button></div>
+</div></div>
+
+<!-- MODAL OFICINA -->
+<div class="moverlay" id="m-o"><div class="modal">
+  <div class="modal-t">Nova oficina parceira</div>
+  <div class="fg">
+    <div class="fgroup" style="grid-column:1/-1"><label class="flabel">Nome da oficina *</label><input class="finput" id="o-nome" placeholder="AutoFix Salvador"/></div>
+    <div class="fgroup" style="grid-column:1/-1"><label class="flabel">Endereço *</label><input class="finput" id="o-end" placeholder="Rua, número, bairro, cidade"/></div>
+  </div>
+  <div class="mfooter"><button class="btn" onclick="closeModal('m-o')">Cancelar</button><button class="btn btn-p" onclick="salvarOficina()">Salvar</button></div>
+</div></div>
+
+<!-- MODAL OS -->
+<div class="moverlay" id="m-os"><div class="modal">
+  <div class="modal-t">Nova ordem de serviço</div>
+  <div style="font-size:12px;color:var(--acc-d);background:var(--acc-l);padding:.6rem .85rem;border-radius:8px;margin-bottom:1rem">
+    💡 A descrição do problema será automaticamente enviada como primeira mensagem no chat pelo responsável.
+  </div>
+  <div class="fg">
+    <div class="fgroup"><label class="flabel">ID do cliente *</label><input class="finput" type="number" id="os-cli" placeholder="ID do cliente"/></div>
+    <div class="fgroup"><label class="flabel">ID do responsável <span class="fhint">(N1/N2/N3)</span></label><input class="finput" type="number" id="os-resp" placeholder="Opcional"/></div>
+    <div class="fgroup" style="grid-column:1/-1"><label class="flabel">Modelo do veículo *</label><input class="finput" id="os-vei" placeholder="Honda Civic 2020"/></div>
+    <div class="fgroup" style="grid-column:1/-1"><label class="flabel">Descrição do problema *</label><textarea class="finput" id="os-desc" placeholder="Descreva detalhadamente o problema relatado pelo cliente..."></textarea></div>
+  </div>
+  <div class="mfooter"><button class="btn" onclick="closeModal('m-os')">Cancelar</button><button class="btn btn-p" onclick="salvarOrdem()">Abrir OS</button></div>
+</div></div>
+
+<!-- MODAL STATUS -->
+<div class="moverlay" id="m-st"><div class="modal">
+  <div class="modal-t">Alterar status — <span id="m-st-id" style="color:var(--tx2);font-weight:400"></span></div>
+  <div id="m-st-perm" style="font-size:12px;padding:.65rem .9rem;background:var(--bg);border-radius:8px;margin-bottom:1rem;color:var(--tx2)"></div>
+  <div class="fg">
+    <div class="fgroup" style="grid-column:1/-1"><label class="flabel">Novo status *</label>
+      <select class="finput" id="novo-st">
+        <option value="ABERTA">Aberta</option>
+        <option value="EM_ANDAMENTO">Em andamento</option>
+        <option value="AGUARDANDO_PECA">Aguardando peça</option>
+        <option value="FECHADA">Fechada</option>
+      </select>
+    </div>
+  </div>
+  <div class="mfooter"><button class="btn" onclick="closeModal('m-st')">Cancelar</button><button class="btn btn-p" onclick="confirmarStatus()">Confirmar</button></div>
+</div></div>
+
+<!-- MODAL EXCLUIR TODAS -->
+<div class="moverlay" id="m-del"><div class="modal">
+  <div class="modal-t" style="color:var(--red)">⚠️ Excluir todas as ordens</div>
+  <p style="font-size:13px;color:var(--tx2);line-height:1.7;margin-bottom:1rem">Esta ação exclui <b>permanentemente</b> todas as OS e o histórico completo de mensagens. <b>Não pode ser desfeita.</b></p>
+  <p style="font-size:13px;color:var(--tx2)">Digite <b>CONFIRMAR</b> para prosseguir:</p>
+  <input class="finput" id="del-conf" placeholder="CONFIRMAR" style="margin-top:.75rem"/>
+  <div class="mfooter"><button class="btn" onclick="closeModal('m-del')">Cancelar</button><button class="btn btn-danger" onclick="excluirTodas()">Excluir tudo</button></div>
+</div></div>
+
+<!-- MODAL NOVO AGENDAMENTO -->
+<div class="moverlay" id="m-ag"><div class="modal">
+  <div class="modal-t">Novo agendamento</div>
+  <div class="fg">
+    <div class="fgroup"><label class="flabel">ID do cliente *</label><input class="finput" type="number" id="ag-cli" placeholder="ID do cliente"/></div>
+    <div class="fgroup"><label class="flabel">Oficina *</label>
+      <select class="finput" id="ag-ofi"><option value="">Carregando...</option></select>
+    </div>
+    <div class="fgroup" style="grid-column:1/-1"><label class="flabel">Data e hora *</label>
+      <input class="finput" type="datetime-local" id="ag-dt"/>
+      <span class="fhint">Deve ser no presente ou no futuro</span>
+    </div>
+    <div class="fgroup" style="grid-column:1/-1"><label class="flabel">Tipo de servico *</label>
+      <select class="finput" id="ag-tipo">
+        <option value="">Selecione...</option>
+        <option value="Revisao geral">Revisao geral</option>
+        <option value="Troca de oleo">Troca de oleo</option>
+        <option value="Freio">Freio</option>
+        <option value="Alinhamento e balanceamento">Alinhamento e balanceamento</option>
+        <option value="Troca de pneus">Troca de pneus</option>
+        <option value="Suspensao">Suspensao</option>
+        <option value="Sistema eletrico">Sistema eletrico</option>
+        <option value="Ar condicionado">Ar condicionado</option>
+        <option value="Motor">Motor</option>
+        <option value="Cambio">Cambio</option>
+        <option value="Outro">Outro</option>
+      </select>
+    </div>
+    <div class="fgroup" id="ag-outro-wrap" style="display:none;grid-column:1/-1">
+      <label class="flabel">Descreva o servico</label>
+      <input class="finput" id="ag-outro" placeholder="Ex.: Troca de correia dentada"/>
+    </div>
+  </div>
+  <div class="mfooter"><button class="btn" onclick="closeModal('m-ag')">Cancelar</button><button class="btn btn-p" onclick="salvarAgendamento()">Agendar</button></div>
+</div></div>
+
+<!-- MODAL REAGENDAR -->
+<div class="moverlay" id="m-reag"><div class="modal">
+  <div class="modal-t">Reagendar — <span id="reag-id" style="color:var(--tx2);font-weight:400"></span></div>
+  <div id="reag-info" style="font-size:12px;padding:.65rem .9rem;background:var(--bg);border-radius:8px;margin-bottom:1rem;color:var(--tx2)"></div>
+  <div class="fg">
+    <div class="fgroup" style="grid-column:1/-1"><label class="flabel">Nova data e hora *</label>
+      <input class="finput" type="datetime-local" id="reag-dt"/>
+    </div>
+    <div class="fgroup" style="grid-column:1/-1"><label class="flabel">Observacao</label>
+      <textarea class="finput" id="reag-obs" placeholder="Motivo do reagendamento..."></textarea>
+    </div>
+  </div>
+  <div class="mfooter"><button class="btn" onclick="closeModal('m-reag')">Cancelar</button><button class="btn btn-p" onclick="confirmarReagendar()">Confirmar reagendamento</button></div>
+</div></div>
+
+<!-- MODAL CANCELAR -->
+<div class="moverlay" id="m-cancel"><div class="modal">
+  <div class="modal-t" style="color:var(--red)">Cancelar agendamento — <span id="cancel-id" style="color:var(--tx2);font-weight:400"></span></div>
+  <div id="cancel-info" style="font-size:12px;padding:.65rem .9rem;background:var(--bg);border-radius:8px;margin-bottom:1rem;color:var(--tx2)"></div>
+  <div class="fg">
+    <div class="fgroup" style="grid-column:1/-1"><label class="flabel">Motivo do cancelamento *</label>
+      <textarea class="finput" id="cancel-motivo" placeholder="Descreva o motivo do cancelamento..."></textarea>
+    </div>
+  </div>
+  <div class="mfooter"><button class="btn" onclick="closeModal('m-cancel')">Voltar</button><button class="btn btn-danger" onclick="confirmarCancelar()">Confirmar cancelamento</button></div>
+</div></div>
+
+<!-- MODAL HISTORICO -->
+<div class="moverlay" id="m-hist"><div class="modal" style="max-width:600px">
+  <div class="modal-t">Historico de reagendamentos — <span id="hist-id" style="color:var(--tx2);font-weight:400"></span></div>
+  <div id="hist-content" style="max-height:400px;overflow-y:auto">
+    <div class="loading"><div class="spin"></div></div>
+  </div>
+  <div class="mfooter"><button class="btn" onclick="closeModal('m-hist')">Fechar</button></div>
+</div></div>
+
+<script src="script.js"></script>
+</body>
+</html>
